@@ -1088,12 +1088,15 @@ function blockedBy(c,key,i,sel){
   return hit?itemName(c,hit):null;
 }
 // build after picking item i: its components in the same column drop out
+// one hero ability at different upgrade levels is one pick: same column, hero, ability and effect
+function abKey(c,s){const it=c[s[0]].items[s[1]], a=it[3]&&it[3].ab; return a?[s[0],a.hero,it[0],a.note].join('|'):null;}
+// build after picking item i: its components in the same column drop out, and so does another level of the same ability
 function withPick(c,sel,key,i){
-  const anc=ancestors(c[key].items[i][0]);
-  return [...sel.filter(s=>!(s[0]===key && anc.has(baseName(itemName(c,s))))), [key,i]];
+  const anc=ancestors(c[key].items[i][0]), ak=abKey(c,[key,i]);
+  return [...sel.filter(s=>!(s[0]===key && anc.has(baseName(itemName(c,s)))) && !(ak&&abKey(c,s)===ak)), [key,i]];
 }
-// drop components whose upgrade is already picked (old saves)
-const prune = (c,sel)=>sel.filter(s=>!blockedBy(c,s[0],s[1],sel));
+// old saves: drop components whose upgrade is picked, keep only the last picked level of an ability
+const prune = (c,sel)=>sel.filter((s,n)=>!blockedBy(c,s[0],s[1],sel) && !(abKey(c,s)&&sel.slice(n+1).some(x=>abKey(c,x)===abKey(c,s))));
 
 // hero abilities join their stat's column as items: [ability, value, 0 souls, {ab:{hero, slot, lvl, self, note}}]
 ABILITIES.forEach(r=>{const c=CATS.find(x=>x.id===r.tab); if(c&&c[r.side]) c[r.side].items.push([r.name, r.v, 0, {ab:r}]);});
@@ -1324,6 +1327,8 @@ function sideHTML(c,key,part='items'){
       gain=`${d>=0?'+':'−'}${pp(Math.abs(d))}${PC} к сборке`;}
     const ex=extra(it), k=stacks(c,key,i), sg=minus?'−':'+';
     if(ex.ab){const a=ex.ab;
+      const other=!n&&st.sel.find(s=>abKey(c,s)===abKey(c,[key,i])); // another level of this ability is picked
+      if(other) gain+=` · заменит ур. ${c[other[0]].items[other[1]][3].ab.lvl}`;
       return `<div role="button" tabindex="0" class="row ab ${key==='b'?'b':''} ${n?'on':''}" data-side="${key}" data-i="${i}" data-card="ab:${esc(it[0])}" aria-pressed="${!!n}">
       <span class="ico ab">${itemIcon(it)}<span class="hero-mini">${heroIcon(a.hero)}</span><b class="ord">${n||''}</b></span>
       <span class="nm"><b>${esc(it[0])}</b><span class="ab-sub">способность ${a.slot}${a.note?' · '+esc(a.note):''}</span>${gain?`<span class="gain">${gain}</span>`:''}</span><span class="nostk"></span>
