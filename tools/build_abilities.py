@@ -64,6 +64,11 @@ NOTES = {
     "MaxSlowPercent": "максимум", "MaxFireRateSlowPercent": "максимум", "FadingSlowPercent": "затухает",
     "MoveSpeedSlowMaxPct": "максимум", "BeamLifesteal": "луч", "LifeStealPercentOnHit": "от урона способности",
 }
+# columns whose abilities debuff enemies: several heroes can stack there
+ENEMY = {("antiheal", "a"), ("bullet", "b"), ("spirit", "b"), ("slow", "a"), ("firerate", "b")}
+# abilities that buff allies (in every column, or only in the given one): heroes on one team can stack them
+ALLY = {("Kudzu Connection", None), ("Plot Armor", None),
+        ("Medicinal Specter", "spirit"), ("Lil Helpers", "spirit")}
 # (hero, ability, property) whose percent only works for the ability's own shots
 SELF = {("Silver", "Slam Fire", "BonusFireRate")}
 
@@ -130,6 +135,13 @@ def parse_card(html):
     return {"head": head, "sections": sections, "ups": ups}
 
 
+def who(tab, side, name):
+    """enemy: debuff on enemies; ally: buff others get too; self: buffs only the caster, so one hero per column."""
+    if (tab, side) in ENEMY:
+        return "enemy"
+    return "ally" if (name, None) in ALLY or (name, tab) in ALLY else "self"
+
+
 def value(x):
     return x.get("Value") if isinstance(x, dict) else x
 
@@ -174,7 +186,7 @@ def main():
                         sources.setdefault(ab["Name"], (hero["Name"], slot))
                         rows.append({"tab": tab, "side": side, "hero": name, "slot": int(slot), "name": ab["Name"],
                                      "lvl": LEVELS[lvl], "v": v, "self": own or (name, ab["Name"], prop) in SELF,
-                                     "note": NOTES.get(prop, "")})
+                                     "note": NOTES.get(prop, ""), "who": who(tab, side, ab["Name"])})
 
     rows.sort(key=lambda r: (r["tab"], r["side"], r["hero"], r["slot"], r["note"], r["lvl"]))
     body = ",\n".join(json.dumps(r, ensure_ascii=False, separators=(",", ":")) for r in rows)
