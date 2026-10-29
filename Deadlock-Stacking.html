@@ -227,7 +227,6 @@ body.dragging-sum{cursor:grabbing;user-select:none}
 .ico .hero-mini img,.ico .hero-mini .hero-x{width:100%;height:100%;display:block;object-fit:cover}
 .row.on .ico.ab > img{opacity:.3}
 .ab-sub{font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fx-self{display:inline-block;margin-top:2px;padding:0 5px;border-radius:4px;background:var(--brass-bg);color:var(--brass);font-weight:600}
 /* upgrade level: three pips (bought upgrades) and the point cost 0 / 1 / 2 / 5 */
 .lvl{display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;min-width:64px;font-family:var(--mono);font-size:13.5px;font-weight:600;color:var(--fg)}
 .pips{display:inline-flex;gap:2px}
@@ -1012,7 +1011,7 @@ const CATS = [
   about:'Movement Slow стакается с убывающей отдачей, Movement Slow Resist складывается. Ниже 2 м/с замедлить нельзя.',
   param:{label:'Move Speed цели, м/с',val:8,step:0.1},
   metric:'Movement Slow', a:{h:'Movement Slow', items:[
-   ['Slowing Bullets',24,1600],['Cold Front',48,1600,{fx:'a'}],['Mystic Slow',24,1600],['Slowing Hex',16,1600,{fx:'a'}],['Point Blank',20,3200],['Weighted Shots',24,3200],['Lifestrike',48,3200],['Capacitor',60,6400,{fx:'a'}],['Colossus',24,6400,{fx:'a'}],['Phantom Strike',40,6400,{fx:'a'}],['Arctic Blast',48,6400,{fx:'a'}],['Lightning Scroll',64,6400],['Mystic Reverb',32,6400],['Vortex Web',28,6400,{fx:'a'}]]},
+   ['Slowing Bullets',24,1600],['Cold Front',48,1600,{fx:'a'}],['Mystic Slow',24,1600],['Slowing Hex',16,1600,{fx:'a'}],['Point Blank',20,3200],['Weighted Shots',24,3200],['Lifestrike',48,3200],['Capacitor',60,6400,{fx:'a'}],['Colossus',24,6400,{fx:'a'}],['Phantom Strike',40,6400,{fx:'a'}],['Arctic Blast',48,6400,{fx:'a'}],['Lightning Scroll',24,6400],['Mystic Reverb',32,6400],['Vortex Web',28,6400,{fx:'a'}]]},
   b:{h:'Movement Slow Resist цели (складывается)', items:[
    ['Enduring Speed',25,1600],['Fleetfoot',40,1600,{fx:'a'}],['Juggernaut',50,6400]]},
   extra:(r,p)=>[['Move Speed цели',((Math.max(p,2)-2)*(1-r.m)+2).toFixed(2)+' м/с']],
@@ -1322,7 +1321,7 @@ function sideHTML(c,key,part='items'){
       return `<div role="button" tabindex="0" class="row ab ${key==='b'?'b':''} ${n?'on':''} ${hb?'blocked':''}" ${hb?`aria-disabled="true" title="Способности на себя — только одного героя: уже выбран ${esc(hb)}"`:''} data-side="${key}" data-i="${i}" data-card="ab:${esc(it[0])}" aria-pressed="${!!n}">
       <span class="ico ab">${itemIcon(it)}<span class="hero-mini">${heroIcon(a.hero)}</span><b class="ord">${n||''}</b></span>
       <span class="nm"><b>${esc(it[0])}</b><span class="ab-sub">способность ${a.slot}${a.note?' · '+esc(a.note):''}</span>${gain?`<span class="gain">${gain}</span>`:''}</span><span class="nostk"></span>
-      <span class="vl">${sg}${pp(it[1]/100)}${PC}${a.self?'<small class="fx fx-self">только на себя</small>':''}</span>${levelBadge(a.lvl)}</div>`;}
+      <span class="vl">${sg}${pp(it[1]/100)}${PC}</span>${levelBadge(a.lvl)}</div>`;}
     // extra control under / beside the name: stack arrows, or the tick that adds the active effect
     const ctl=ex.per?`<span class="stk" title="Стаки: ${k} из ${ex.max}. Стак — ${ex.how}, ${ex.per}${PC} за стак"><span class="arr">
       <button type="button" data-stk="1" aria-label="Больше стаков" ${k>=ex.max?'disabled':''}>▲</button><button type="button" data-stk="-1" aria-label="Меньше стаков" ${k<=ex.min?'disabled':''}>▼</button></span>
