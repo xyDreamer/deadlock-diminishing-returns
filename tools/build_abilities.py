@@ -33,6 +33,7 @@ PROPS = {
     "AbilityLifestealPercentHero": [("sls", "a", True)],
     "LifeStealPercentOnHit": [("sls", "a", True)],
     "BeamLifesteal": [("sls", "a", True)],
+    "TargetLifesteal": [("bls", "a", True), ("sls", "a", True)],  # Riposte: lifesteal against its target
     "BulletResist": [("bullet", "a", False)],
     "BulletResistOnActive": [("bullet", "a", False)],
     "BulletResistReduction": [("bullet", "b", False)],
@@ -63,6 +64,17 @@ NOTES = {
     "ClubSlowPercent": "трефы", "DiamondResistShred": "бубны", "BulletResistOnActive": "при активации",
     "MaxSlowPercent": "максимум", "MaxFireRateSlowPercent": "максимум", "FadingSlowPercent": "затухает",
     "MoveSpeedSlowMaxPct": "максимум", "BeamLifesteal": "луч", "LifeStealPercentOnHit": "от урона способности",
+}
+# (ability, property) pairs whose wiki property is not the stat it looks like (checked against the ability cards):
+# a summon's or object's own resist, sub-cooldowns, pulls/immobilizes/time slow read as move slow
+SKIP = {
+    ("Setup Bishop", "BulletResist"), ("Setup Bishop", "TechResist"), ("Setup Bishop", "CurrentCooldownRefundPercent"),
+    ("Rallying Charge", "CancelCooldownRefundPercentage"),
+    ("Borrowed Decree", "BulletResist"), ("Borrowed Decree", "DamageSlowPercent"),
+    ("Grasping Hands", "SlowPercent"), ("Grapple Arm", "SlowPercent"), ("Soul Exchange", "EnemySlowPct"),
+    ("Riposte", "SlowPercent"), ("Riposte", "AbilityLifestealPercentHero"),
+    ("Burrow", "SpinSlowPercent"), ("Pulse Grenade", "SlowPercent"),
+    ("Mini Turret", "TechResist"), ("Binding Word", "BulletArmorReduction"),
 }
 # columns whose abilities debuff enemies: several heroes can stack there
 ENEMY = {("antiheal", "a"), ("bullet", "b"), ("spirit", "b"), ("slow", "a"), ("firerate", "b")}
@@ -169,6 +181,8 @@ def main():
             if not isinstance(ab, dict):
                 continue
             for prop, targets in PROPS.items():
+                if (ab["Name"], prop) in SKIP:
+                    continue
                 vals = [round(abs(v), 2) for v in levels(ab, prop)]
                 if prop == "BonusFireRate" and min(levels(ab, prop)) < 0:
                     continue  # a fire rate penalty on yourself, not a bonus
